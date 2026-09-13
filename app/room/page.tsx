@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import LiveVideoRoom from "./live-video";
 
 const transcriptLanguages = [
   "English",
@@ -202,39 +203,8 @@ export default function RoomPage() {
             </div>
 
             <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
-              <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-4">
-                {participants.map((person) => (
-                  <div key={person.name} className="rounded-[24px] border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900 p-4">
-                    <div className="relative mb-4 flex h-44 items-center justify-center overflow-hidden rounded-[22px] bg-slate-950 text-6xl">
-                      {person.name === "You" && cameraEnabled ? (
-                        <video
-                          ref={localVideoRef}
-                          autoPlay
-                          muted
-                          playsInline
-                          className="h-full w-full object-cover"
-                          style={{ filter: cameraFilters[cameraFilter], transform: "none" }}
-                        />
-                      ) : (
-                        <div
-                          className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${person.color}`}
-                          style={{ filter: cameraFilters[cameraFilter] }}
-                        >
-                          {person.name === "You" ? "🙂" : "😊"}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">{person.name}</p>
-                        <p className="text-xs text-slate-400">{person.country} · {person.accent}</p>
-                      </div>
-                      <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] text-emerald-300">
-                        Live
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <div className="h-[22rem] w-full overflow-hidden rounded-[24px] border border-slate-700 bg-slate-950">
+                <LiveVideoRoom />
               </div>
 
               <button className="flex h-14 w-full items-center justify-center rounded-full border border-indigo-500/40 bg-indigo-500/10 px-5 py-3 text-sm font-medium text-indigo-200 md:w-24 md:self-center">
