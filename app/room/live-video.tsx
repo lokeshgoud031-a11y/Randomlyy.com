@@ -3,10 +3,10 @@
 import "@livekit/components-styles";
 import {
   LiveKitRoom,
-  ParticipantTile,
   RoomAudioRenderer,
   TrackToggle,
-  TrackReferenceOrPlaceholder,
+  TrackReference,
+  VideoTrack,
   useTracks,
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
@@ -69,7 +69,7 @@ export default function LiveVideoRoom() {
 
 function LiveParticipantGrid() {
   const tracks = useTracks([
-    { source: Track.Source.Camera, withPlaceholder: true },
+    { source: Track.Source.Camera, withPlaceholder: false },
   ]);
 
   return (
@@ -81,7 +81,12 @@ function LiveParticipantGrid() {
         return (
           <div key={track ? `${track.participant.identity}-${track.source}` : `waiting-${slot}`} className="relative min-h-0 overflow-hidden rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-950 to-slate-900">
             {track ? (
-              <ParticipantTile trackRef={track as TrackReferenceOrPlaceholder} />
+              <VideoTrack
+                trackRef={track as TrackReference}
+                autoPlay
+                playsInline
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div className="flex h-full min-h-40 items-center justify-center text-sm text-slate-500">
                 Waiting for stranger...
