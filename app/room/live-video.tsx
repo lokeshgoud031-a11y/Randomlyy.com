@@ -46,7 +46,15 @@ export default function LiveVideoRoom() {
   }
 
   return (
-    <LiveKitRoom token={token} serverUrl={serverUrl} connect audio video className="relative flex h-full flex-col overflow-hidden rounded-2xl">
+    <LiveKitRoom
+      token={token}
+      serverUrl={serverUrl}
+      connect
+      audio
+      video
+      onError={(roomError) => setError(`Live video connection failed: ${roomError.message}`)}
+      className="relative flex h-full flex-col overflow-hidden rounded-2xl"
+    >
       <LiveParticipantGrid />
       <div className="flex shrink-0 justify-center gap-2 border-t border-slate-800 bg-slate-950/95 p-2">
         <TrackToggle
@@ -85,7 +93,11 @@ function LiveParticipantGrid() {
                 trackRef={track as TrackReference}
                 autoPlay
                 playsInline
-                className="h-full w-full object-cover"
+                className="block h-full min-h-40 w-full object-cover"
+                style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+                onSubscriptionStatusChanged={(subscribed) => {
+                  if (!subscribed) console.warn("LiveKit camera track is not subscribed.");
+                }}
               />
             ) : (
               <div className="flex h-full min-h-40 items-center justify-center text-sm text-slate-500">
