@@ -5,6 +5,7 @@ import {
   LiveKitRoom,
   ParticipantTile,
   RoomAudioRenderer,
+  TrackToggle,
   TrackReferenceOrPlaceholder,
   useTracks,
 } from "@livekit/components-react";
@@ -47,6 +48,20 @@ export default function LiveVideoRoom() {
   return (
     <LiveKitRoom token={token} serverUrl={serverUrl} connect audio video className="h-full overflow-hidden rounded-2xl">
       <LiveParticipantGrid />
+      <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 rounded-full border border-slate-700 bg-slate-950/90 p-2 shadow-xl">
+        <TrackToggle
+          source={Track.Source.Microphone}
+          className="rounded-full border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-white"
+        >
+          Mic
+        </TrackToggle>
+        <TrackToggle
+          source={Track.Source.Camera}
+          className="rounded-full border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-white"
+        >
+          Cam
+        </TrackToggle>
+      </div>
       <RoomAudioRenderer />
     </LiveKitRoom>
   );
@@ -59,7 +74,7 @@ function LiveParticipantGrid() {
   ]);
 
   return (
-    <div className="grid h-full auto-rows-fr grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 bg-slate-950 p-2">
+    <div data-lk-theme="default" className="grid h-full auto-rows-fr grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 bg-slate-950 p-2">
       {tracks.map((track) => (
         <ParticipantTile key={`${track.participant.identity}-${track.source}`} trackRef={track as TrackReferenceOrPlaceholder} />
       ))}

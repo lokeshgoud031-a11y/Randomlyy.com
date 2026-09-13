@@ -215,15 +215,6 @@ export default function RoomPage() {
             {mediaError && <p className="mt-4 text-center text-xs text-rose-300">{mediaError}</p>}
             {!realTimeConversation && <p className="mt-4 text-center text-xs text-amber-200">Real-time conversation is off.</p>}
 
-            <div className="mt-5 flex items-center justify-center gap-3">
-              <button type="button" onClick={toggleMicrophone} className={`rounded-full border px-5 py-3 text-sm font-medium transition ${micEnabled ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" : "border-slate-700 bg-slate-800 text-slate-200"}`}>
-                {micEnabled ? "Mic on" : "Mic"}
-              </button>
-              <button type="button" onClick={toggleCamera} className={`rounded-full border px-5 py-3 text-sm font-medium transition ${cameraEnabled ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" : "border-slate-700 bg-slate-800 text-slate-200"}`}>
-                {cameraEnabled ? "Cam on" : "Cam"}
-              </button>
-            </div>
-
             <label className="mx-auto mt-4 flex max-w-xs items-center justify-between gap-3 rounded-2xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs text-slate-400">
               Camera filter
               <select
