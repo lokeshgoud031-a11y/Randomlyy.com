@@ -1,43 +1,39 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Randomlyy.com | Stranger Chat and Random Video Chat",
-  description: "Randomlyy.com helps you meet strangers online for random video chat, voice conversations, and live translation.",
+  title: "Randomlyy Chat with Strangers | Talk to People Worldwide",
+  description:
+    "Randomlyy is a random chat platform to meet and chat with strangers worldwide using live video, voice chat and real-time translation.",
   keywords: [
-    "stranger chat",
+    "Randomlyy",
+    "Randomlyy chat",
+    "chat with strangers",
     "random chat",
     "random video chat",
+    "talk to strangers",
     "meet strangers online",
-    "global conversation",
-    "live translation chat",
-    "Randomlyy.com",
+    "video chat with strangers",
+    "voice chat with strangers",
   ],
   openGraph: {
-    title: "Randomlyy.com | Stranger Chat and Random Video Chat",
-    description: "Meet new people around the world through random video chat, voice conversations, and live translation.",
+    title: "Randomlyy Chat with Strangers",
+    description:
+      "Connect globally · Speak locally. Meet and chat with people around the world.",
+    url: "https://randomlyy.onrender.com",
+    siteName: "Randomlyy",
     type: "website",
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   );
 }
