@@ -44,7 +44,8 @@ export default function LiveVideoRoom({
   const [loading, setLoading] = useState(true);
 
   /*
-   * Create one LiveKit Room instance.
+   * Keep one stable LiveKit Room instance.
+   * This helps prevent unnecessary disconnect/reconnect cycles.
    */
   const room = useMemo(() => {
     return new Room({
@@ -54,7 +55,7 @@ export default function LiveVideoRoom({
   }, []);
 
   /*
-   * Get LiveKit token from our API.
+   * Get LiveKit token from our server.
    */
   useEffect(() => {
     let cancelled = false;
@@ -117,7 +118,7 @@ export default function LiveVideoRoom({
   }, []);
 
   /*
-   * LiveKit error.
+   * LiveKit connection error.
    */
   const handleError = useCallback(
     (roomError: Error) => {
@@ -134,7 +135,7 @@ export default function LiveVideoRoom({
   );
 
   /*
-   * LiveKit disconnect.
+   * LiveKit disconnected.
    */
   const handleDisconnected = useCallback(
     (reason: unknown) => {
@@ -147,7 +148,7 @@ export default function LiveVideoRoom({
   );
 
   /*
-   * Cleanup.
+   * Disconnect the room when leaving the page.
    */
   useEffect(() => {
     return () => {
@@ -156,13 +157,12 @@ export default function LiveVideoRoom({
   }, [room]);
 
   /*
-   * Loading.
+   * Loading screen.
    */
   if (loading || !token || !serverUrl) {
     return (
       <div className="flex min-h-[420px] items-center justify-center rounded-2xl bg-[#080d1d]">
         <div className="text-center">
-
           <div className="mb-4 text-5xl">
             🌍
           </div>
@@ -174,20 +174,18 @@ export default function LiveVideoRoom({
           <div className="mx-auto mt-4 h-1 w-32 overflow-hidden rounded-full bg-slate-800">
             <div className="h-full w-1/2 animate-pulse rounded-full bg-purple-500" />
           </div>
-
         </div>
       </div>
     );
   }
 
   /*
-   * Error.
+   * Error screen.
    */
   if (error) {
     return (
       <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-red-500/20 bg-[#120b12] p-6 text-center">
         <div>
-
           <div className="text-4xl">
             ⚠️
           </div>
@@ -209,15 +207,11 @@ export default function LiveVideoRoom({
           >
             Try Again
           </button>
-
         </div>
       </div>
     );
   }
 
-  /*
-   * LiveKit room.
-   */
   return (
     <LiveKitRoom
       room={room}
@@ -230,7 +224,6 @@ export default function LiveVideoRoom({
       onDisconnected={handleDisconnected}
       className="relative flex min-h-[420px] flex-col overflow-hidden rounded-2xl"
     >
-
       <LiveTranscriptBridge
         transcriptEnabled={transcriptEnabled}
         onTranscriptChange={
@@ -244,16 +237,13 @@ export default function LiveVideoRoom({
       <LiveParticipantGrid />
 
       <RoomAudioRenderer />
-
     </LiveKitRoom>
   );
 }
 
-
-/* =========================================================
-   TRANSCRIPT BRIDGE
-========================================================= */
-
+/*
+ * Handles real LiveKit transcription data.
+ */
 function LiveTranscriptBridge({
   transcriptEnabled,
   onTranscriptChange,
@@ -273,9 +263,6 @@ function LiveTranscriptBridge({
   const conversationReady =
     realParticipants.length >= 2;
 
-  /*
-   * Tell parent whether stranger is connected.
-   */
   useEffect(() => {
     onConversationReadyChange(
       conversationReady,
@@ -285,22 +272,15 @@ function LiveTranscriptBridge({
     onConversationReadyChange,
   ]);
 
-  /*
-   * Transcript.
-   */
   useEffect(() => {
-
     /*
-     * OFF = no transcript.
+     * Transcript is OFF by default.
      */
     if (!transcriptEnabled) {
       onTranscriptChange([]);
       return;
     }
 
-    /*
-     * Only real LiveKit transcription.
-     */
     const entries: TranscriptEntry[] =
       transcriptions
         .filter(
@@ -319,7 +299,6 @@ function LiveTranscriptBridge({
         }));
 
     onTranscriptChange(entries);
-
   }, [
     transcriptEnabled,
     transcriptions,
@@ -329,18 +308,17 @@ function LiveTranscriptBridge({
   return null;
 }
 
-
-/* =========================================================
-   PARTICIPANT VIDEO AREA
-========================================================= */
-
+/*
+ * Video layout.
+ *
+ * Desktop:
+ * YOU | STRANGER
+ *
+ * Mobile:
+ * STRANGER large
+ * YOU small top-right
+ */
 function LiveParticipantGrid() {
-  /*
-   * IMPORTANT:
-   *
-   * withPlaceholder:false means the result is a real
-   * TrackReference and can safely be passed to VideoTrack.
-   */
   const tracks = useTracks([
     {
       source: Track.Source.Camera,
@@ -349,32 +327,33 @@ function LiveParticipantGrid() {
   ]);
 
   /*
-   * Find YOUR camera.
+   * Cast to any here because different versions of
+   * LiveKit Components expose slightly different
+   * TrackReference types.
+   *
+   * We already use withPlaceholder:false above,
+   * so these are actual camera tracks.
    */
   const localTrack = tracks.find(
     (track) =>
       track.participant.isLocal,
-  );
+  ) as any;
 
-  /*
-   * Find STRANGER camera.
-   */
   const remoteTrack = tracks.find(
     (track) =>
       !track.participant.isLocal,
-  );
+  ) as any;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-[#050817]">
 
-
-      {/* =================================================
+      {/* =========================
           MOBILE VIEW
-      ================================================= */}
+         ========================= */}
 
       <div className="relative h-[430px] w-full overflow-hidden bg-[#090e20] md:hidden">
 
-        {/* STRANGER LARGE */}
+        {/* STRANGER LARGE VIDEO */}
 
         {remoteTrack ? (
           <VideoTrack
@@ -385,7 +364,6 @@ function LiveParticipantGrid() {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#090e20] to-[#10182d]">
-
             <div className="text-center">
 
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-800 text-3xl">
@@ -397,27 +375,21 @@ function LiveParticipantGrid() {
               </p>
 
             </div>
-
           </div>
         )}
-
 
         {/* STRANGER LABEL */}
 
         <div className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-black/75 px-4 py-1.5 text-xs font-bold text-white backdrop-blur">
-
           <span className="mr-1 text-emerald-400">
             ●
           </span>
-
           STRANGER
-
         </div>
 
-
-        {/* =================================================
+        {/* =========================
             YOU SMALL VIDEO
-        ================================================= */}
+           ========================= */}
 
         <div className="absolute right-3 top-3 z-20 h-[125px] w-[105px] overflow-hidden rounded-xl border-2 border-white/20 bg-[#111827] shadow-xl">
 
@@ -439,13 +411,11 @@ function LiveParticipantGrid() {
           </div>
 
         </div>
-
       </div>
 
-
-      {/* =================================================
-          LAPTOP / DESKTOP VIEW
-      ================================================= */}
+      {/* =========================
+          DESKTOP VIEW
+         ========================= */}
 
       <div className="hidden min-h-0 flex-1 gap-4 p-4 md:flex">
 
@@ -468,56 +438,47 @@ function LiveParticipantGrid() {
 
       </div>
 
-
-      {/* =================================================
+      {/* =========================
           CAMERA + MIC
-      ================================================= */}
+         ========================= */}
 
       <div className="flex items-center justify-center gap-3 border-t border-slate-800 bg-[#070b18] p-3">
 
-        {/* CAMERA */}
-
         <TrackToggle
-          source={
-            Track.Source.Camera as any
-          }
+          source={Track.Source.Camera as any}
           className="flex h-12 min-w-[90px] items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1429] px-4 text-xs font-semibold text-white transition hover:border-purple-500 hover:bg-purple-500/10"
         >
           📹 Camera
         </TrackToggle>
 
-
-        {/* MICROPHONE */}
-
         <TrackToggle
-          source={
-            Track.Source.Microphone as any
-          }
+          source={Track.Source.Microphone as any}
           className="flex h-12 min-w-[90px] items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#0c1429] px-4 text-xs font-semibold text-white transition hover:border-purple-500 hover:bg-purple-500/10"
         >
           🎙️ Mic
         </TrackToggle>
 
       </div>
-
     </div>
   );
 }
 
-
-/* =========================================================
-   DESKTOP VIDEO BOX
-========================================================= */
-
+/*
+ * Desktop video box.
+ */
 function DesktopVideoBox({
   track,
   label,
   waitingText,
   local = false,
 }: {
-  track:
-    | ReturnType<typeof useTracks>[number]
-    | undefined;
+  /*
+   * any is intentional here.
+   *
+   * It prevents the TrackReferenceOrPlaceholder
+   * type mismatch from different LiveKit versions.
+   */
+  track: any;
 
   label: string;
 
@@ -529,16 +490,13 @@ function DesktopVideoBox({
     <div className="relative min-h-[330px] min-w-0 flex-1 overflow-hidden rounded-2xl border border-slate-700 bg-gradient-to-br from-[#090e20] to-[#10182d]">
 
       {track ? (
-
         <VideoTrack
           trackRef={track}
           autoPlay
           playsInline
           className="h-full min-h-[330px] w-full object-cover"
         />
-
       ) : (
-
         <div className="flex h-full min-h-[330px] items-center justify-center">
 
           <div className="text-center">
@@ -554,10 +512,7 @@ function DesktopVideoBox({
           </div>
 
         </div>
-
       )}
-
-      {/* LABEL */}
 
       <div className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-black/75 px-4 py-1.5 text-xs font-bold text-white backdrop-blur">
 
@@ -568,7 +523,6 @@ function DesktopVideoBox({
         {label}
 
       </div>
-
     </div>
   );
 }
