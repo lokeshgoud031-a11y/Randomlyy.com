@@ -3,149 +3,219 @@
 import Link from "next/link";
 import { useState } from "react";
 
-export default function Home() {
-  const [name, setName] = useState("Aarav");
-  const [language, setLanguage] = useState("Telugu");
-  const [mode, setMode] = useState("video");
-  const [translation, setTranslation] = useState(true);
+export default function HomePage() {
+  const [darkMode, setDarkMode] = useState(true);
 
-  const languages = ["Telugu", "English", "Hindi", "Tamil", "Kannada", "Malayalam"];
+  const [name, setName] = useState("");
+  const [language, setLanguage] = useState("Telugu");
+  const [mode, setMode] = useState<"video" | "audio">(
+    "video",
+  );
+  const [translation, setTranslation] =
+    useState(true);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050b14] text-white">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.22),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(34,211,238,0.15),_transparent_30%)]" />
-
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 lg:px-8">
-        <div className="flex items-center gap-3">
-          <img src="/icon.png" alt="Global logo" className="h-11 w-11 object-contain" />
+    <main
+      className={
+        darkMode
+          ? "min-h-screen bg-slate-950 text-white"
+          : "min-h-screen bg-slate-100 text-slate-900"
+      }
+    >
+      {/* HEADER */}
+      <header
+        className={
+          darkMode
+            ? "border-b border-slate-800"
+            : "border-b border-slate-200 bg-white"
+        }
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <div>
-            <p className="text-xl font-bold tracking-tight text-white">Randomlyy.com</p>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Global voice</p>
-          </div>
-        </div>
+            <h1 className="text-xl font-bold">
+              Randomlyy
+              <span className="text-purple-500">
+                .com
+              </span>
+            </h1>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-300">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            Global network online
-          </span>
-          <button className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-500">
-            Dark
-          </button>
-          <button className="rounded-full border border-slate-700 bg-slate-800/80 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-500">
-            Light
-          </button>
+            <p className="text-xs text-slate-500">
+              Global network online
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setDarkMode(false)}
+              className={
+                !darkMode
+                  ? "rounded-lg bg-slate-900 px-3 py-2 text-xs text-white"
+                  : "rounded-lg border border-slate-700 px-3 py-2 text-xs text-slate-400"
+              }
+            >
+              ☀ Light
+            </button>
+
+            <button
+              onClick={() => setDarkMode(true)}
+              className={
+                darkMode
+                  ? "rounded-lg bg-white px-3 py-2 text-xs text-black"
+                  : "rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-600"
+              }
+            >
+              🌙 Dark
+            </button>
+          </div>
         </div>
       </header>
 
-      <section className="mx-auto max-w-3xl px-6 pb-16 pt-8 lg:px-8 lg:pb-24 lg:pt-12">
-        <div className="flex flex-col justify-center">
-          <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">
-            Connect globally · Speak locally
-          </div>
+      {/* HERO */}
+      <section className="mx-auto max-w-4xl px-5 pb-8 pt-16 text-center">
+        <p className="text-sm font-medium text-purple-400">
+          Connect globally · Speak locally
+        </p>
 
-          <h1 className="max-w-xl text-4xl font-black leading-[1.05] tracking-tight text-white md:text-6xl">
-            Meet someone.
-            <span className="block bg-gradient-to-r from-indigo-400 via-cyan-300 to-teal-200 bg-clip-text text-transparent">
-              Speak freely.
-            </span>
-          </h1>
+        <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+          Meet someone.
+          <br />
+          Speak freely.
+        </h2>
 
-          <p className="mt-6 max-w-lg text-base text-slate-300 md:text-lg">
-            Instant video and voice conversations with people around the world, powered by live translation and effortless cultural connection.
-          </p>
+        <p
+          className={
+            darkMode
+              ? "mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-400"
+              : "mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-600"
+          }
+        >
+          Meet people from around the world through
+          random video or voice conversations with
+          real-time language support.
+        </p>
+      </section>
 
-          <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
-            <div className="rounded-full border border-slate-700 bg-slate-900/70 px-4 py-2">
-              12k+ live conversations
-            </div>
-            <div className="rounded-full border border-slate-700 bg-slate-900/70 px-4 py-2">
-              27 languages supported
-            </div>
-            <div className="rounded-full border border-slate-700 bg-slate-900/70 px-4 py-2">
-              <span className="text-indigo-300">AI</span> translation enabled
-            </div>
-          </div>
+      {/* SETUP CARD */}
+      <section className="mx-auto max-w-2xl px-5 pb-16">
+        <div
+          className={
+            darkMode
+              ? "rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl"
+              : "rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+          }
+        >
+          {/* NAME */}
+          <div>
+            <label className="text-sm font-medium">
+              Your name
+            </label>
 
-          <div className="mt-8 max-w-xl rounded-[28px] border border-slate-800 bg-slate-900/80 p-5 shadow-2xl shadow-indigo-950/30 backdrop-blur-sm md:p-6">
-            <label className="mb-2 block text-sm font-medium text-slate-200">Your name</label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="How should we call you?"
-              className="mb-5 w-full rounded-2xl border border-slate-700 bg-[#071321] px-4 py-3 text-base text-white outline-none transition focus:border-indigo-500"
+              onChange={(event) =>
+                setName(event.target.value)
+              }
+              placeholder="Enter your name"
+              className={
+                darkMode
+                  ? "mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-purple-500"
+                  : "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-purple-500"
+              }
             />
+          </div>
 
-            <label className="mb-2 block text-sm font-medium text-slate-200">Your language</label>
+          {/* LANGUAGE */}
+          <div className="mt-5">
+            <label className="text-sm font-medium">
+              Preferred language
+            </label>
+
             <select
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="mb-5 w-full rounded-2xl border border-slate-700 bg-[#071321] px-4 py-3 text-base text-white outline-none transition focus:border-indigo-500"
+              onChange={(event) =>
+                setLanguage(event.target.value)
+              }
+              className={
+                darkMode
+                  ? "mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white"
+                  : "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm"
+              }
             >
-              {languages.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
+              <option>Telugu</option>
+              <option>English</option>
+              <option>Hindi</option>
+              <option>Tamil</option>
+              <option>Kannada</option>
             </select>
-
-            <p className="mb-2 text-sm font-medium text-slate-200">Choose your mode</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setMode("video")}
-                className={`rounded-2xl border p-4 text-left transition ${
-                  mode === "video"
-                    ? "border-indigo-500 bg-indigo-500/15 shadow-lg shadow-indigo-500/10"
-                    : "border-slate-700 bg-slate-950/80 hover:border-slate-500"
-                }`}
-              >
-                <div className="text-2xl">🎥</div>
-                <div className="mt-3 font-semibold">Video</div>
-                <div className="text-xs text-slate-400">Face-to-face</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setMode("audio")}
-                className={`rounded-2xl border p-4 text-left transition ${
-                  mode === "audio"
-                    ? "border-cyan-400 bg-cyan-500/15 shadow-lg shadow-cyan-500/10"
-                    : "border-slate-700 bg-slate-950/80 hover:border-slate-500"
-                }`}
-              >
-                <div className="text-2xl">🎙</div>
-                <div className="mt-3 font-semibold">Audio</div>
-                <div className="text-xs text-slate-400">Voice only</div>
-              </button>
-            </div>
-
-            <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-700 bg-[#0a1727] p-4">
-              <div>
-                <p className="font-semibold text-white">Real-time translation</p>
-                <p className="text-xs text-slate-400">Translate during conversation</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setTranslation(!translation)}
-                className={`rounded-full px-4 py-2 text-sm font-bold transition ${
-                  translation ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
-                }`}
-              >
-                {translation ? "ON" : "OFF"}
-              </button>
-            </div>
-
-            <Link
-              href="/room"
-              className="mt-5 block w-full rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 py-4 text-center text-base font-bold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110"
-            >
-              Start your journey →
-            </Link>
           </div>
-        </div>
 
+          {/* MODE */}
+          <div className="mt-5">
+            <label className="text-sm font-medium">
+              Conversation mode
+            </label>
+
+            <div className="mt-2 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setMode("video")}
+                className={
+                  mode === "video"
+                    ? "rounded-xl border border-purple-500 bg-purple-500/10 px-4 py-3 text-sm font-medium text-purple-400"
+                    : "rounded-xl border border-slate-700 px-4 py-3 text-sm text-slate-500"
+                }
+              >
+                📹 Video
+              </button>
+
+              <button
+                onClick={() => setMode("audio")}
+                className={
+                  mode === "audio"
+                    ? "rounded-xl border border-purple-500 bg-purple-500/10 px-4 py-3 text-sm font-medium text-purple-400"
+                    : "rounded-xl border border-slate-700 px-4 py-3 text-sm text-slate-500"
+                }
+              >
+                🎙️ Audio
+              </button>
+            </div>
+          </div>
+
+          {/* TRANSLATION */}
+          <div className="mt-5 flex items-center justify-between rounded-xl border border-slate-700 p-4">
+            <div>
+              <p className="text-sm font-medium">
+                Real-time translation
+              </p>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Translate conversations automatically
+              </p>
+            </div>
+
+            <button
+              onClick={() =>
+                setTranslation(
+                  (current) => !current,
+                )
+              }
+              className={
+                translation
+                  ? "rounded-full bg-green-500 px-4 py-2 text-xs font-semibold text-white"
+                  : "rounded-full bg-slate-700 px-4 py-2 text-xs font-semibold text-slate-400"
+              }
+            >
+              {translation ? "ON" : "OFF"}
+            </button>
+          </div>
+
+          {/* START */}
+          <Link
+            href="/room"
+            className="mt-6 block w-full rounded-xl bg-purple-600 px-5 py-3.5 text-center text-sm font-semibold text-white transition hover:bg-purple-700"
+          >
+            Start Random Chat →
+          </Link>
+        </div>
       </section>
     </main>
   );

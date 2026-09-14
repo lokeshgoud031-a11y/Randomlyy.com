@@ -6,9 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "transcribe:dev": "node --env-file-if-exists=.env.local agents/transcriber.mjs dev",
+    "transcribe:start": "node --env-file-if-exists=.env.local agents/transcriber.mjs start"
   },
   "dependencies": {
+    "@livekit/agents": "^1.8.1",
+    "@livekit/rtc-node": "^0.13.34",
     "@livekit/components-react": "^2.9.24",
     "@livekit/components-styles": "^1.2.0",
     "livekit-client": "^2.22.3",
