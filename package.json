@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "@livekit/agents": "^1.8.1",
-    "@livekit/rtc-node": "^0.13.34",
     "@livekit/components-react": "^2.9.24",
     "@livekit/components-styles": "^1.2.0",
+    "@livekit/rtc-node": "^0.13.34",
     "livekit-client": "^2.22.3",
     "livekit-server-sdk": "^2.19.0",
     "next": "16.3.5",
