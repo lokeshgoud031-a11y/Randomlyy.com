@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://randomlyy.onrender.com/sitemap.xml",
+    sitemap: "https://randomlyy.com/sitemap.xml",
   };
 }
