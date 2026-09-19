@@ -10,6 +10,7 @@ import {
   useParticipants,
   useRoomContext,
   useTracks,
+  type TrackReference,
 } from "@livekit/components-react";
 
 import {
@@ -25,12 +26,9 @@ import {
   useState,
 } from "react";
 
-
-/*
- * =========================================================
- * TYPES
- * =========================================================
- */
+/* =========================================================
+   TYPES
+========================================================= */
 
 export type ChatMessage = {
   id: string;
@@ -74,12 +72,9 @@ type LiveVideoRoomProps = {
   onNext: () => void;
 };
 
-
-/*
- * =========================================================
- * MAIN COMPONENT
- * =========================================================
- */
+/* =========================================================
+   MAIN LIVE VIDEO ROOM
+========================================================= */
 
 export default function LiveVideoRoom({
   roomId,
@@ -90,93 +85,66 @@ export default function LiveVideoRoom({
   outgoingMessage,
   onNext,
 }: LiveVideoRoomProps) {
-
   const [previewStream, setPreviewStream] =
-    useState<MediaStream | null>(
-      null,
-    );
+    useState<MediaStream | null>(null);
 
   const previewStreamRef =
-    useRef<MediaStream | null>(
-      null,
-    );
+    useRef<MediaStream | null>(null);
 
   const previewVideoRef =
-    useRef<HTMLVideoElement | null>(
-      null,
-    );
+    useRef<HTMLVideoElement | null>(null);
 
   const [cameraError, setCameraError] =
-    useState<string>("");
+    useState("");
 
   const [token, setToken] =
-    useState<string | null>(
-      null,
-    );
+    useState<string | null>(null);
 
   const [serverUrl, setServerUrl] =
-    useState<string | null>(
-      null,
-    );
+    useState<string | null>(null);
 
   const [tokenError, setTokenError] =
-    useState<string>("");
+    useState("");
 
+  /* =======================================================
+     STOP PREVIEW
+  ======================================================= */
 
-  /*
-   * =======================================================
-   * STOP PREVIEW
-   * =======================================================
-   */
+  const stopPreview = useCallback(() => {
+    const stream =
+      previewStreamRef.current;
 
-  const stopPreview =
-    useCallback(() => {
-      const stream =
-        previewStreamRef.current;
+    if (stream) {
+      stream
+        .getTracks()
+        .forEach((track) => {
+          track.stop();
+        });
+    }
 
-      if (stream) {
-        stream
-          .getTracks()
-          .forEach(
-            (track) => {
-              track.stop();
-            },
-          );
-      }
+    previewStreamRef.current = null;
+    setPreviewStream(null);
+  }, []);
 
-      previewStreamRef.current =
-        null;
-
-      setPreviewStream(
-        null,
-      );
-    }, []);
-
-
-  /*
-   * =======================================================
-   * START LOCAL CAMERA PREVIEW
-   * =======================================================
-   */
+  /* =======================================================
+     LOCAL CAMERA PREVIEW WHILE WAITING
+  ======================================================= */
 
   useEffect(() => {
     if (roomId) {
       return;
     }
 
-    let cancelled =
-      false;
+    let cancelled = false;
 
     async function startPreview() {
       try {
         setCameraError("");
 
         if (
-          typeof navigator ===
-            "undefined" ||
+          typeof navigator === "undefined" ||
           !navigator.mediaDevices ||
-          !navigator.mediaDevices
-            .getUserMedia
+          !navigator.mediaDevices.getUserMedia
         ) {
           setCameraError(
             "Camera access is not supported in this browser.",
@@ -185,62 +153,42 @@ export default function LiveVideoRoom({
           return;
         }
 
-        /*
-         * If an old preview exists,
-         * stop it first.
-         */
-        if (
-          previewStreamRef.current
-        ) {
+        if (previewStreamRef.current) {
           previewStreamRef.current
             .getTracks()
-            .forEach(
-              (track) =>
-                track.stop(),
-            );
+            .forEach((track) => {
+              track.stop();
+            });
 
-          previewStreamRef.current =
-            null;
+          previewStreamRef.current = null;
         }
 
         const stream =
-          await navigator.mediaDevices.getUserMedia(
-            {
-              video: {
-                facingMode:
-                  "user",
-
-                width: {
-                  ideal: 1280,
-                },
-
-                height: {
-                  ideal: 720,
-                },
+          await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: "user",
+              width: {
+                ideal: 1280,
               },
-
-              audio: true,
+              height: {
+                ideal: 720,
+              },
             },
-          );
+            audio: true,
+          });
 
         if (cancelled) {
           stream
             .getTracks()
-            .forEach(
-              (track) =>
-                track.stop(),
-            );
+            .forEach((track) => {
+              track.stop();
+            });
 
           return;
         }
 
-        previewStreamRef.current =
-          stream;
-
-        setPreviewStream(
-          stream,
-        );
-
+        previewStreamRef.current = stream;
+        setPreviewStream(stream);
       } catch (error) {
         console.error(
           "Camera preview error:",
@@ -262,12 +210,9 @@ export default function LiveVideoRoom({
     };
   }, [roomId]);
 
-
-  /*
-   * =======================================================
-   * ATTACH PREVIEW TO VIDEO
-   * =======================================================
-   */
+  /* =======================================================
+     ATTACH PREVIEW STREAM
+  ======================================================= */
 
   useEffect(() => {
     const video =
@@ -278,28 +223,18 @@ export default function LiveVideoRoom({
     }
 
     if (!previewStream) {
-      video.srcObject =
-        null;
-
+      video.srcObject = null;
       return;
     }
 
-    video.srcObject =
-      previewStream;
+    video.srcObject = previewStream;
 
-    video
-      .play()
-      .catch(() => {});
-  }, [
-    previewStream,
-  ]);
+    video.play().catch(() => {});
+  }, [previewStream]);
 
-
-  /*
-   * =======================================================
-   * STOP PREVIEW WHEN MATCHED
-   * =======================================================
-   */
+  /* =======================================================
+     STOP PREVIEW AFTER MATCH
+  ======================================================= */
 
   useEffect(() => {
     if (!roomId) {
@@ -307,17 +242,11 @@ export default function LiveVideoRoom({
     }
 
     stopPreview();
-  }, [
-    roomId,
-    stopPreview,
-  ]);
+  }, [roomId, stopPreview]);
 
-
-  /*
-   * =======================================================
-   * CLEANUP
-   * =======================================================
-   */
+  /* =======================================================
+     CLEANUP
+  ======================================================= */
 
   useEffect(() => {
     return () => {
@@ -327,35 +256,28 @@ export default function LiveVideoRoom({
       if (stream) {
         stream
           .getTracks()
-          .forEach(
-            (track) =>
-              track.stop(),
-          );
+          .forEach((track) => {
+            track.stop();
+          });
       }
 
-      previewStreamRef.current =
-        null;
+      previewStreamRef.current = null;
     };
   }, []);
 
-
-  /*
-   * =======================================================
-   * GET LIVEKIT TOKEN WHEN ROOM EXISTS
-   * =======================================================
-   */
+  /* =======================================================
+     GET LIVEKIT TOKEN
+  ======================================================= */
 
   useEffect(() => {
     if (!roomId) {
       setToken(null);
       setServerUrl(null);
       setTokenError("");
-
       return;
     }
 
-    let cancelled =
-      false;
+    let cancelled = false;
 
     async function loadToken() {
       try {
@@ -383,12 +305,10 @@ export default function LiveVideoRoom({
             "/api/livekit/token",
             {
               method: "POST",
-
               headers: {
                 "Content-Type":
                   "application/json",
               },
-
               body: JSON.stringify({
                 room: roomId,
                 identity,
@@ -410,14 +330,8 @@ export default function LiveVideoRoom({
           return;
         }
 
-        setToken(
-          data.token,
-        );
-
-        setServerUrl(
-          data.serverUrl,
-        );
-
+        setToken(data.token);
+        setServerUrl(data.serverUrl);
       } catch (error) {
         console.error(
           "LiveKit token error:",
@@ -441,22 +355,16 @@ export default function LiveVideoRoom({
     };
   }, [roomId]);
 
-
-  /*
-   * =======================================================
-   * WAITING SCREEN
-   * =======================================================
-   */
+  /* =======================================================
+     WAITING SCREEN
+  ======================================================= */
 
   if (!roomId) {
     return (
       <div className="relative h-[calc(100vh-170px)] min-h-[520px] w-full overflow-hidden rounded-2xl bg-[#080d1d]">
-
         {previewStream ? (
           <video
-            ref={
-              previewVideoRef
-            }
+            ref={previewVideoRef}
             autoPlay
             muted
             playsInline
@@ -464,9 +372,7 @@ export default function LiveVideoRoom({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#090e20] to-[#10182d]">
-
             <div className="px-6 text-center">
-
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-800 text-4xl">
                 📹
               </div>
@@ -480,28 +386,18 @@ export default function LiveVideoRoom({
                   {cameraError}
                 </p>
               )}
-
             </div>
-
           </div>
         )}
 
-
-        {/* CAMERA LABEL */}
         <div className="absolute left-3 top-3 z-20 rounded-full border border-white/10 bg-black/70 px-4 py-2 text-xs font-semibold text-white backdrop-blur">
-
           <span className="mr-2 text-emerald-400">
             ●
           </span>
-
           YOUR CAMERA
-
         </div>
 
-
-        {/* FINDING */}
         <div className="absolute bottom-5 left-1/2 z-30 -translate-x-1/2 rounded-2xl border border-white/10 bg-black/75 px-6 py-4 text-center backdrop-blur">
-
           <div className="text-2xl">
             🌍
           </div>
@@ -513,38 +409,27 @@ export default function LiveVideoRoom({
           <p className="mt-1 text-[11px] text-slate-400">
             Your camera is ready
           </p>
-
         </div>
 
-
-        {/* NEXT */}
         <button
           type="button"
-          onClick={
-            onNext
-          }
+          onClick={onNext}
           className="absolute bottom-5 right-4 z-40 rounded-xl bg-purple-600 px-5 py-3 text-sm font-bold text-white shadow-xl transition hover:bg-purple-500 active:scale-95"
         >
           Next →
         </button>
-
       </div>
     );
   }
 
-
-  /*
-   * =======================================================
-   * TOKEN ERROR
-   * =======================================================
-   */
+  /* =======================================================
+     TOKEN ERROR
+  ======================================================= */
 
   if (tokenError) {
     return (
       <div className="flex min-h-[520px] items-center justify-center rounded-2xl bg-[#080d1d] p-6">
-
         <div className="text-center">
-
           <div className="text-5xl">
             ⚠️
           </div>
@@ -566,26 +451,19 @@ export default function LiveVideoRoom({
           >
             Try Again
           </button>
-
         </div>
-
       </div>
     );
   }
 
-
-  /*
-   * =======================================================
-   * WAITING FOR LIVEKIT TOKEN
-   * =======================================================
-   */
+  /* =======================================================
+     WAITING FOR TOKEN
+  ======================================================= */
 
   if (!token || !serverUrl) {
     return (
       <div className="flex min-h-[520px] items-center justify-center rounded-2xl bg-[#080d1d]">
-
         <div className="text-center">
-
           <div className="mb-4 animate-pulse text-5xl">
             🌍
           </div>
@@ -597,19 +475,14 @@ export default function LiveVideoRoom({
           <p className="mt-2 text-xs text-slate-500">
             Starting your live video call
           </p>
-
         </div>
-
       </div>
     );
   }
 
-
-  /*
-   * =======================================================
-   * ONE LIVEKIT ROOM
-   * =======================================================
-   */
+  /* =======================================================
+     LIVEKIT ROOM
+  ======================================================= */
 
   return (
     <LiveKitRoom
@@ -635,24 +508,19 @@ export default function LiveVideoRoom({
           roomId,
         );
       }}
-      onError={(liveKitError) => {
+      onError={(error) => {
         console.error(
           "LiveKit error:",
-          liveKitError,
+          error,
         );
       }}
       className="relative w-full overflow-hidden rounded-2xl"
     >
-
       <CameraMicrophoneController />
 
       <ChatController
-        outgoingMessage={
-          outgoingMessage
-        }
-        onChatMessage={
-          onChatMessage
-        }
+        outgoingMessage={outgoingMessage}
+        onChatMessage={onChatMessage}
       />
 
       <ConversationController
@@ -667,32 +535,23 @@ export default function LiveVideoRoom({
         }
       />
 
-      <VideoLayout
-        onNext={
-          onNext
-        }
-      />
+      <VideoLayout onNext={onNext} />
 
       <RoomAudioRenderer />
-
     </LiveKitRoom>
   );
 }
 
-
-/*
- * =========================================================
- * CAMERA + MICROPHONE
- * =========================================================
- */
+/* =========================================================
+   CAMERA + MICROPHONE
+========================================================= */
 
 function CameraMicrophoneController() {
   const room =
     useRoomContext();
 
   useEffect(() => {
-    let cancelled =
-      false;
+    let cancelled = false;
 
     async function startDevices() {
       try {
@@ -718,7 +577,6 @@ function CameraMicrophoneController() {
         console.log(
           "Randomlyy camera and microphone started.",
         );
-
       } catch (error) {
         console.error(
           "Camera/microphone error:",
@@ -729,10 +587,9 @@ function CameraMicrophoneController() {
 
     startDevices();
 
-    const connected =
-      () => {
-        startDevices();
-      };
+    const connected = () => {
+      startDevices();
+    };
 
     room.on(
       RoomEvent.Connected,
@@ -752,12 +609,9 @@ function CameraMicrophoneController() {
   return null;
 }
 
-
-/*
- * =========================================================
- * CHAT CONTROLLER
- * =========================================================
- */
+/* =========================================================
+   CHAT CONTROLLER
+========================================================= */
 
 function ChatController({
   outgoingMessage,
@@ -774,10 +628,10 @@ function ChatController({
   const room =
     useRoomContext();
 
+  /* =======================================================
+     RECEIVE CHAT
+  ======================================================= */
 
-  /*
-   * RECEIVE
-   */
   useEffect(() => {
     const receiveMessage = (
       payload: Uint8Array,
@@ -818,17 +672,14 @@ function ChatController({
             data.id ||
             crypto.randomUUID(),
 
-          text:
-            data.text,
+          text: data.text,
 
-          isLocal:
-            false,
+          isLocal: false,
 
           senderId:
             participant?.identity ||
             "stranger",
         });
-
       } catch (error) {
         console.error(
           "Chat receive error:",
@@ -853,17 +704,23 @@ function ChatController({
     onChatMessage,
   ]);
 
+  /* =======================================================
+     SEND CHAT
 
-  /*
-   * SEND
-   */
+     IMPORTANT:
+     Copy outgoingMessage into a local constant.
+     This fixes the TypeScript null errors.
+  ======================================================= */
+
   useEffect(() => {
     if (!outgoingMessage) {
       return;
     }
 
-    let cancelled =
-      false;
+    const message =
+      outgoingMessage;
+
+    let cancelled = false;
 
     async function sendMessage() {
       try {
@@ -877,11 +734,8 @@ function ChatController({
         const encoded =
           new TextEncoder().encode(
             JSON.stringify({
-              id:
-                outgoingMessage.id,
-
-              text:
-                outgoingMessage.text,
+              id: message.id,
+              text: message.text,
             }),
           );
 
@@ -890,7 +744,7 @@ function ChatController({
           {
             reliable: true,
             topic:
-              "randomlyy-chat",
+              "randomly-chat",
           },
         );
 
@@ -899,20 +753,16 @@ function ChatController({
         }
 
         onChatMessage({
-          id:
-            outgoingMessage.id,
+          id: message.id,
 
-          text:
-            outgoingMessage.text,
+          text: message.text,
 
-          isLocal:
-            true,
+          isLocal: true,
 
           senderId:
             room.localParticipant
               .identity,
         });
-
       } catch (error) {
         console.error(
           "Chat send error:",
@@ -935,12 +785,9 @@ function ChatController({
   return null;
 }
 
-
-/*
- * =========================================================
- * CONVERSATION CONTROLLER
- * =========================================================
- */
+/* =========================================================
+   CONVERSATION CONTROLLER
+========================================================= */
 
 function ConversationController({
   onConversationReadyChange,
@@ -982,9 +829,7 @@ function ConversationController({
 
   useEffect(() => {
     if (!transcriptEnabled) {
-      onTranscriptChange(
-        [],
-      );
+      onTranscriptChange([]);
     }
   }, [
     transcriptEnabled,
@@ -994,18 +839,12 @@ function ConversationController({
   return null;
 }
 
+/* =========================================================
+   VIDEO LAYOUT
 
-/*
- * =========================================================
- * VIDEO LAYOUT
- *
- * IMPORTANT:
- *
- * STRANGER = BIG
- * YOU      = SMALL
- *
- * =========================================================
- */
+   STRANGER = BIG
+   YOU      = SMALL
+========================================================= */
 
 function VideoLayout({
   onNext,
@@ -1018,32 +857,32 @@ function VideoLayout({
         {
           source:
             Track.Source.Camera,
-
-          withPlaceholder:
-            false,
+          withPlaceholder: false,
         },
       ],
       {
-        onlySubscribed:
-          true,
+        onlySubscribed: true,
       },
     );
 
-
   /*
-   * YOUR CAMERA
+   * Explicitly tell TypeScript that the
+   * tracks we select are real TrackReferences.
+   *
+   * This fixes:
+   * TrackReferenceOrPlaceholder
+   * is not assignable to TrackReference
    */
+
   const localTrack =
     tracks.find(
       (track) =>
         track.participant
           .isLocal,
-    );
+    ) as
+      | TrackReference
+      | undefined;
 
-
-  /*
-   * STRANGER CAMERA
-   */
   const remoteTrack =
     tracks.find(
       (track) =>
@@ -1051,31 +890,26 @@ function VideoLayout({
           .isLocal &&
         !(track.participant as any)
           .isAgent,
-    );
-
+    ) as
+      | TrackReference
+      | undefined;
 
   return (
     <div className="relative w-full bg-[#050817]">
 
-
       {/* =================================================
           MOBILE
-          ================================================= */}
+      ================================================= */}
 
       <div className="relative block h-[calc(100vh-165px)] min-h-[520px] w-full overflow-hidden md:hidden">
 
-
-        {/* ---------------------------------------------
-            BIG STRANGER VIDEO
-            --------------------------------------------- */}
+        {/* BIG STRANGER */}
 
         <div className="absolute inset-0 bg-[#090e20]">
 
           {remoteTrack ? (
             <VideoTrack
-              trackRef={
-                remoteTrack
-              }
+              trackRef={remoteTrack}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -1102,8 +936,8 @@ function VideoLayout({
 
         </div>
 
-
         {/* STRANGER LABEL */}
+
         <div className="absolute left-3 top-3 z-30 rounded-full border border-white/10 bg-black/75 px-4 py-2 text-xs font-bold text-white backdrop-blur">
 
           <span className="mr-1 text-emerald-400">
@@ -1114,18 +948,13 @@ function VideoLayout({
 
         </div>
 
-
-        {/* ---------------------------------------------
-            SMALL YOUR CAMERA
-            --------------------------------------------- */}
+        {/* YOUR SMALL CAMERA */}
 
         <div className="absolute right-3 top-3 z-40 h-[150px] w-[110px] overflow-hidden rounded-2xl border-2 border-white/30 bg-black shadow-2xl">
 
           {localTrack ? (
             <VideoTrack
-              trackRef={
-                localTrack
-              }
+              trackRef={localTrack}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -1140,8 +969,8 @@ function VideoLayout({
 
         </div>
 
-
         {/* CAMERA + MIC */}
+
         <div className="absolute bottom-[72px] left-1/2 z-40 flex -translate-x-1/2 gap-3">
 
           <TrackToggle
@@ -1158,13 +987,11 @@ function VideoLayout({
 
         </div>
 
-
         {/* NEXT */}
+
         <button
           type="button"
-          onClick={
-            onNext
-          }
+          onClick={onNext}
           className="absolute bottom-3 right-3 z-50 rounded-xl bg-purple-600 px-5 py-3 text-sm font-bold text-white shadow-xl transition hover:bg-purple-500 active:scale-95"
         >
           Next →
@@ -1172,27 +999,21 @@ function VideoLayout({
 
       </div>
 
-
       {/* =================================================
           DESKTOP
-          ================================================= */}
+      ================================================= */}
 
       <div className="hidden md:block">
 
         <div className="relative h-[calc(100vh-165px)] min-h-[520px] w-full">
 
-
-          {/* ---------------------------------------------
-              BIG STRANGER VIDEO
-              --------------------------------------------- */}
+          {/* BIG STRANGER VIDEO */}
 
           <div className="absolute inset-0 overflow-hidden rounded-2xl bg-[#090e20]">
 
             {remoteTrack ? (
               <VideoTrack
-                trackRef={
-                  remoteTrack
-                }
+                trackRef={remoteTrack}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -1217,8 +1038,8 @@ function VideoLayout({
               </div>
             )}
 
-
             {/* STRANGER LABEL */}
+
             <div className="absolute left-4 top-4 z-30 rounded-full bg-black/75 px-4 py-2 text-xs font-bold text-white backdrop-blur">
 
               <span className="mr-1 text-emerald-400">
@@ -1229,13 +1050,11 @@ function VideoLayout({
 
             </div>
 
-
             {/* NEXT */}
+
             <button
               type="button"
-              onClick={
-                onNext
-              }
+              onClick={onNext}
               className="absolute bottom-5 right-5 z-50 rounded-xl bg-purple-600 px-6 py-3 text-sm font-bold text-white shadow-xl transition hover:bg-purple-500 active:scale-95"
             >
               Next →
@@ -1243,18 +1062,13 @@ function VideoLayout({
 
           </div>
 
-
-          {/* ---------------------------------------------
-              SMALL YOUR CAMERA
-              --------------------------------------------- */}
+          {/* YOUR SMALL CAMERA */}
 
           <div className="absolute right-5 top-5 z-40 h-[190px] w-[280px] overflow-hidden rounded-2xl border-2 border-white/30 bg-black shadow-2xl">
 
             {localTrack ? (
               <VideoTrack
-                trackRef={
-                  localTrack
-                }
+                trackRef={localTrack}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -1271,8 +1085,8 @@ function VideoLayout({
 
         </div>
 
-
         {/* CONTROLS */}
+
         <div className="flex items-center justify-center gap-3 border-t border-slate-800 bg-[#070b18] p-4">
 
           <TrackToggle
