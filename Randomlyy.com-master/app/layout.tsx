@@ -17,10 +17,19 @@ export const metadata: Metadata = {
     "voice chat with strangers",
     "random video call",
   ],
+
   metadataBase: new URL("https://randomlyy.com"),
+
   alternates: {
     canonical: "/",
   },
+
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
+
   openGraph: {
     title: "Randomlyy Chat with Strangers",
     description:
@@ -28,7 +37,16 @@ export const metadata: Metadata = {
     url: "https://randomlyy.com",
     siteName: "Randomlyy",
     type: "website",
+    images: [
+      {
+        url: "/icon.png",
+        width: 512,
+        height: 512,
+        alt: "Randomlyy",
+      },
+    ],
   },
+
   robots: {
     index: true,
     follow: true,
