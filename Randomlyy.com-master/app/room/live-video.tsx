@@ -362,6 +362,7 @@ export default function LiveVideoRoom({
   if (!roomId) {
     return (
       <div className="relative h-[calc(100vh-170px)] min-h-[520px] w-full overflow-hidden rounded-2xl bg-[#080d1d]">
+
         {previewStream ? (
           <video
             ref={previewVideoRef}
@@ -430,6 +431,7 @@ export default function LiveVideoRoom({
     return (
       <div className="flex min-h-[520px] items-center justify-center rounded-2xl bg-[#080d1d] p-6">
         <div className="text-center">
+
           <div className="text-5xl">
             ⚠️
           </div>
@@ -451,6 +453,7 @@ export default function LiveVideoRoom({
           >
             Try Again
           </button>
+
         </div>
       </div>
     );
@@ -464,6 +467,7 @@ export default function LiveVideoRoom({
     return (
       <div className="flex min-h-[520px] items-center justify-center rounded-2xl bg-[#080d1d]">
         <div className="text-center">
+
           <div className="mb-4 animate-pulse text-5xl">
             🌍
           </div>
@@ -475,6 +479,7 @@ export default function LiveVideoRoom({
           <p className="mt-2 text-xs text-slate-500">
             Starting your live video call
           </p>
+
         </div>
       </div>
     );
@@ -516,7 +521,8 @@ export default function LiveVideoRoom({
       }}
       className="relative w-full overflow-hidden rounded-2xl"
     >
-      <CameraMicrophoneController />
+
+      {/* CAMERA MICROPHONE CONTROLLER REMOVED */}
 
       <ChatController
         outgoingMessage={outgoingMessage}
@@ -535,78 +541,14 @@ export default function LiveVideoRoom({
         }
       />
 
-      <VideoLayout onNext={onNext} />
+      <VideoLayout
+        onNext={onNext}
+      />
 
       <RoomAudioRenderer />
+
     </LiveKitRoom>
   );
-}
-
-/* =========================================================
-   CAMERA + MICROPHONE
-========================================================= */
-
-function CameraMicrophoneController() {
-  const room =
-    useRoomContext();
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function startDevices() {
-      try {
-        if (
-          room.state !==
-          "connected"
-        ) {
-          return;
-        }
-
-        await room.localParticipant.setCameraEnabled(
-          true,
-        );
-
-        if (cancelled) {
-          return;
-        }
-
-        await room.localParticipant.setMicrophoneEnabled(
-          true,
-        );
-
-        console.log(
-          "Randomlyy camera and microphone started.",
-        );
-      } catch (error) {
-        console.error(
-          "Camera/microphone error:",
-          error,
-        );
-      }
-    }
-
-    startDevices();
-
-    const connected = () => {
-      startDevices();
-    };
-
-    room.on(
-      RoomEvent.Connected,
-      connected,
-    );
-
-    return () => {
-      cancelled = true;
-
-      room.off(
-        RoomEvent.Connected,
-        connected,
-      );
-    };
-  }, [room]);
-
-  return null;
 }
 
 /* =========================================================
@@ -706,10 +648,6 @@ function ChatController({
 
   /* =======================================================
      SEND CHAT
-
-     IMPORTANT:
-     Copy outgoingMessage into a local constant.
-     This fixes the TypeScript null errors.
   ======================================================= */
 
   useEffect(() => {
@@ -744,7 +682,7 @@ function ChatController({
           {
             reliable: true,
             topic:
-              "randomly-chat",
+              "randomlyy-chat",
           },
         );
 
@@ -865,15 +803,6 @@ function VideoLayout({
       },
     );
 
-  /*
-   * Explicitly tell TypeScript that the
-   * tracks we select are real TrackReferences.
-   *
-   * This fixes:
-   * TrackReferenceOrPlaceholder
-   * is not assignable to TrackReference
-   */
-
   const localTrack =
     tracks.find(
       (track) =>
@@ -926,7 +855,7 @@ function VideoLayout({
                 </p>
 
                 <p className="mt-2 text-xs text-slate-500">
-                  Your camera is ready
+                  Waiting for video connection
                 </p>
 
               </div>
@@ -1030,7 +959,7 @@ function VideoLayout({
                   </p>
 
                   <p className="mt-2 text-xs text-slate-500">
-                    Your camera is ready
+                    Waiting for video connection
                   </p>
 
                 </div>
