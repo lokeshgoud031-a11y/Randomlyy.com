@@ -995,16 +995,17 @@ function VideoLayout({
 
           <div className="absolute right-5 top-5 z-40 h-[190px] w-[280px] overflow-hidden rounded-2xl border-2 border-white/30 bg-black shadow-2xl">
 
-            {localTrack ? (
-              <VideoTrack
-                trackRef={localTrack}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center bg-slate-900 text-4xl">
-                📹
-              </div>
-            )}
+           {localTrack ? (
+  <VideoTrack
+    trackRef={localTrack}
+    className="h-full w-full object-cover"
+    style={{ transform: "none" }}
+  />
+) : (
+  <div className="flex h-full items-center justify-center bg-slate-900 text-4xl">
+    📹
+  </div>
+)}
 
             <div className="absolute bottom-3 left-3 rounded-md bg-black/75 px-3 py-1 text-[10px] font-bold text-white">
               YOU
