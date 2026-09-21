@@ -875,27 +875,45 @@ function VideoLayout({
 
         </div>
 
-        {/* YOUR SMALL CAMERA */}
+        {/* =================================================
+            YOUR SMALL CAMERA + NEXT
+        ================================================= */}
 
-        <div className="absolute right-3 top-3 z-40 h-[150px] w-[110px] overflow-hidden rounded-2xl border-2 border-white/30 bg-black shadow-2xl">
+        <div className="absolute right-3 top-3 z-40 flex items-start gap-2">
 
-          {localTrack ? (
-            <VideoTrack
-              trackRef={localTrack}
-              className="h-full w-full object-cover"
-              style={{
-                transform: "scaleX(-1)",
-              }}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-slate-900 text-3xl">
-              📹
+          {/* YOUR CAMERA */}
+
+          <div className="relative h-[150px] w-[110px] overflow-hidden rounded-2xl border-2 border-white/30 bg-black shadow-2xl">
+
+            {localTrack ? (
+              <VideoTrack
+                trackRef={localTrack}
+                className="h-full w-full object-cover"
+                style={{
+                  transform: "none",
+                }}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-slate-900 text-3xl">
+                📹
+              </div>
+            )}
+
+            <div className="absolute bottom-2 left-2 rounded-md bg-black/75 px-2 py-1 text-[9px] font-bold text-white">
+              YOU
             </div>
-          )}
 
-          <div className="absolute bottom-2 left-2 rounded-md bg-black/75 px-2 py-1 text-[9px] font-bold text-white">
-            YOU
           </div>
+
+          {/* NEXT */}
+
+          <button
+            type="button"
+            onClick={onNext}
+            className="rounded-xl bg-purple-600 px-4 py-3 text-sm font-bold text-white shadow-xl transition hover:bg-purple-500 active:scale-95"
+          >
+            Next →
+          </button>
 
         </div>
 
@@ -916,16 +934,6 @@ function VideoLayout({
           />
 
         </div>
-
-        {/* NEXT */}
-
-        <button
-          type="button"
-          onClick={onNext}
-          className="absolute bottom-3 right-3 z-50 rounded-xl bg-purple-600 px-5 py-3 text-sm font-bold text-white shadow-xl transition hover:bg-purple-500 active:scale-95"
-        >
-          Next →
-        </button>
 
       </div>
 
@@ -1000,7 +1008,9 @@ function VideoLayout({
               <VideoTrack
                 trackRef={localTrack}
                 className="h-full w-full object-cover"
-                style={{ transform: "none" }}
+                style={{
+                  transform: "none",
+                }}
               />
             ) : (
               <div className="flex h-full items-center justify-center bg-slate-900 text-4xl">
