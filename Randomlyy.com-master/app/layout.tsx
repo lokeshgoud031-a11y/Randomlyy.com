@@ -3,8 +3,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Randomlyy Chat with Strangers | Talk to People Worldwide",
+
   description:
     "Randomlyy is a random chat platform to meet and chat with strangers worldwide using live video, voice chat, and real-time translation.",
+
+  applicationName: "Randomlyy",
+
   keywords: [
     "Randomlyy",
     "Randomlyy chat",
@@ -18,7 +22,9 @@ export const metadata: Metadata = {
     "random video call",
   ],
 
-  metadataBase: new URL("https://randomlyy.com"),
+  metadataBase: new URL(
+    "https://randomlyy.com",
+  ),
 
   alternates: {
     canonical: "/",
@@ -31,12 +37,18 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "Randomlyy Chat with Strangers",
+    title:
+      "Randomlyy Chat with Strangers",
+
     description:
       "Connect globally · Speak locally. Meet and chat with people around the world.",
+
     url: "https://randomlyy.com",
+
     siteName: "Randomlyy",
+
     type: "website",
+
     images: [
       {
         url: "/icon.png",
@@ -58,9 +70,31 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const websiteStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Randomlyy",
+    alternateName: [
+      "Randomlyy Chat",
+      "Randomlyy.com",
+    ],
+    url: "https://randomlyy.com/",
+  };
+
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              websiteStructuredData,
+            ),
+          }}
+        />
+
+        {children}
+      </body>
     </html>
   );
 }
